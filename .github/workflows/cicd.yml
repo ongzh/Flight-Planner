@@ -1,0 +1,17 @@
+name: cicd
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the backend docker image
+      working-directory: backend
+      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
