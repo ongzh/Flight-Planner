@@ -9,15 +9,18 @@ const getAllFlights = async (req, res, next) => {
   }
 };
 
-const getAllAirways = async (req, res, next) => {
+const getFlightByCallsign = async (req, res, next) => {
   try {
-    res.status(200).json(await flightService.getAllAirways());
+    res
+      .status(200)
+      .json(await flightService.getFlightByCallsign(req.params.callsign));
   } catch (error) {
     console.error(error);
-    next(error);
+    next(err);
   }
 };
 
 module.exports = {
   getAllFlights,
+  getFlightByCallsign,
 };

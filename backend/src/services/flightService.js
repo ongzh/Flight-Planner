@@ -1,6 +1,7 @@
 const axios = require("axios");
 const { API_KEY, BASE_URL } = require("../utils/utils");
 axios.defaults.headers["apikey"] = API_KEY;
+const geoService = require("./geoService");
 
 const getAllFlightPlans = async () => {
   let result = [];
@@ -15,9 +16,17 @@ const getAllFlightPlans = async () => {
   return result;
 };
 
-const getAllAirways = async () => {
-  const response = await axios.get(BASE_URL + "/geopoints/list/airways");
-  return response.data;
+const getFlightByCallsign = async (callsign) => {
+  const response = await axios.get(BASE_URL + "/flight-manager/displayAll");
+  const flightPlan = response.data.find(
+    (plan) =>
+      plan.aircraftIdentification === callsign && plan.filedRoute !== undefined
+  );
+  if (flightPlan) {
+    return processFlightPlan(flightPlan);
+  } else {
+    return null; // Flight plan with the provided callsign not found
+  }
 };
 
 const processFlightPlan = (flightPlan) => {
@@ -31,4 +40,5 @@ const processFlightPlan = (flightPlan) => {
 
 module.exports = {
   getAllFlightPlans,
+  getFlightByCallsign,
 };
