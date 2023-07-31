@@ -1,13 +1,20 @@
-const axios = require("axios");
-const { API_KEY, BASE_URL } = require("../utils/utils");
-axios.defaults.headers["apikey"] = API_KEY;
-const getAllFlights = async (req, res) => {
+const flightService = require("../services/flightService");
+
+const getAllFlights = async (req, res, next) => {
   try {
-    const response = await axios.get(BASE_URL + "/flight-manager/displayAll");
-    res.status(200).json(response.data);
+    res.status(200).json(await flightService.getAllFlightPlans());
   } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
+    console.error(error);
+    next(err);
+  }
+};
+
+const getAllAirways = async (req, res, next) => {
+  try {
+    res.status(200).json(await flightService.getAllAirways());
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };
 
