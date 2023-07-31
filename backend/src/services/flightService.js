@@ -29,8 +29,35 @@ const getFlightByCallsign = async (callsign) => {
   }
 };
 
+const getFlightRouteById = async (flightId) => {
+  const waypoints = await geoService.getAllWaypoints();
+  const response = await axios.get(BASE_URL + "/flight-manager/displayAll");
+  const flightPlan = processFlightPlan(
+    response.data.find((plan) => plan._id === flightId)
+  );
+  const flightRoute = processFlightRoute(flightPlan, waypoints);
+  return flightRoute;
+};
+
+const processFlightRoute = (flightPlan, waypoints) => {
+  let flightRoute = {};
+  flightRoute["aircraftId"] = flightPlan["aircraftId"];
+  flightRoute["departure"] = flightPlan["departure"];
+  flightRoute["arrival"] = flightPlan["arrival"];
+  for (const routeElement of flightPlan["route"]["routeElement"]) {
+    console.log(routeElement);
+    const waypoint = waypoints.find(
+      (waypoint) => waypoint.name === routeElement.position.designatedPoint
+    );
+    routeElement.position = waypoint;
+  }
+  flightRoute["route"] = flightPlan["route"];
+  return flightRoute;
+};
+
 const processFlightPlan = (flightPlan) => {
   let plan = {};
+  plan["_id"] = flightPlan["_id"];
   plan["aircraftId"] = flightPlan["aircraftIdentification"];
   plan["departure"] = flightPlan["departure"];
   plan["arrival"] = flightPlan["arrival"];
@@ -41,4 +68,5 @@ const processFlightPlan = (flightPlan) => {
 module.exports = {
   getAllFlightPlans,
   getFlightByCallsign,
+  getFlightRouteById,
 };

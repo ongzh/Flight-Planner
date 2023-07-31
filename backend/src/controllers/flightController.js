@@ -5,7 +5,7 @@ const getAllFlights = async (req, res, next) => {
     res.status(200).json(await flightService.getAllFlightPlans());
   } catch (error) {
     console.error(error);
-    next(err);
+    next(error);
   }
 };
 
@@ -16,11 +16,23 @@ const getFlightByCallsign = async (req, res, next) => {
       .json(await flightService.getFlightByCallsign(req.params.callsign));
   } catch (error) {
     console.error(error);
-    next(err);
+    next(error);
+  }
+};
+
+const getFlightRouteById = async (req, res, next) => {
+  try {
+    res
+      .status(200)
+      .json(await flightService.getFlightRouteById(req.params.flightId));
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };
 
 module.exports = {
   getAllFlights,
   getFlightByCallsign,
+  getFlightRouteById,
 };
