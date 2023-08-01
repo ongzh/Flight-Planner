@@ -11,12 +11,12 @@ const getAllWaypoints = async (req, res) => {
   let result = [];
   const response = await axios.get(BASE_URL + "/geopoints/list/fixes");
   for (const waypoint of response.data) {
-    result.push(ProcessWaypoint(waypoint));
+    result.push(processWaypoint(waypoint));
   }
   return result;
 };
 
-const ProcessWaypoint = (waypoint) => {
+const processWaypoint = (waypoint) => {
   let result = {};
   const [name, latitude, longitude] = waypoint
     .replace("(", "")
@@ -32,4 +32,5 @@ const ProcessWaypoint = (waypoint) => {
 module.exports = {
   getAllAirways,
   getAllWaypoints,
+  processWaypoint,
 };
