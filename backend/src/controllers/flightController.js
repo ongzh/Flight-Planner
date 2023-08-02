@@ -9,7 +9,7 @@ const getAllFlights = async (req, res, next) => {
   }
 };
 
-const getFlightByCallsign = async (req, res, next) => {
+const getFlightRouteByCallsign = async (req, res, next) => {
   try {
     res
       .status(200)
@@ -33,6 +33,6 @@ const getFlightRouteById = async (req, res, next) => {
 
 module.exports = {
   getAllFlights,
-  getFlightByCallsign,
+  getFlightRouteByCallsign,
   getFlightRouteById,
 };

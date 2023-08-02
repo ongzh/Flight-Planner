@@ -3,6 +3,7 @@ const { API_KEY, BASE_URL } = require("../utils/utils");
 axios.defaults.headers["apikey"] = API_KEY;
 const geoService = require("./geoService");
 
+//retrieve all flight plans, convert to a more readable format
 const getAllFlightPlans = async () => {
   let result = [];
   const response = await axios.get(BASE_URL + "/flight-manager/displayAll");
@@ -16,19 +17,21 @@ const getAllFlightPlans = async () => {
   return result;
 };
 
+//retrieve flight route with waypoint coordinates given callsign
 const getFlightByCallsign = async (callsign) => {
-  const response = await axios.get(BASE_URL + "/flight-manager/displayAll");
-  const flightPlan = response.data.find(
+  const waypoints = await geoService.getAllWaypoints();
+  const flightPlans = await axios.get(BASE_URL + "/flight-manager/displayAll");
+  const flightPlan = flightPlans.data.find(
     (plan) =>
       plan.aircraftIdentification === callsign && plan.filedRoute !== undefined
   );
   if (flightPlan) {
-    return processFlightPlan(flightPlan);
+    return processFlightRoute(processFlightPlan(flightPlan), waypoints);
   } else {
     return null; // Flight plan with the provided callsign not found
   }
 };
-
+//retrieve flight route with waypoint coordinates given flightPlan id
 const getFlightRouteById = async (flightId) => {
   const waypoints = await geoService.getAllWaypoints();
   const response = await axios.get(BASE_URL + "/flight-manager/displayAll");
@@ -39,6 +42,7 @@ const getFlightRouteById = async (flightId) => {
   return flightRoute;
 };
 
+//add waypoint coordinates to flight route
 const processFlightRoute = (flightPlan, waypoints) => {
   let flightRoute = {};
   flightRoute["aircraftId"] = flightPlan["aircraftId"];
@@ -55,6 +59,7 @@ const processFlightRoute = (flightPlan, waypoints) => {
   return flightRoute;
 };
 
+//convert flightplan to a more readable format
 const processFlightPlan = (flightPlan) => {
   let plan = {};
   plan["_id"] = flightPlan["_id"];
