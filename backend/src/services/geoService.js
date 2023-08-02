@@ -4,35 +4,45 @@ axios.defaults.headers["apikey"] = API_KEY;
 
 //helper function to retrieve all airways and waypoints
 const getAllAirways = async (req, res) => {
-  const response = await axios.get(BASE_URL + "/geopoints/list/airways");
-  return response.data;
+	const response = await axios.get(BASE_URL + "/geopoints/list/airways");
+	return response.data;
 };
 
 const getAllWaypoints = async (req, res) => {
-  let result = [];
-  const response = await axios.get(BASE_URL + "/geopoints/list/fixes");
-  for (const waypoint of response.data) {
-    result.push(processWaypoint(waypoint));
-  }
-  return result;
+	let result = [];
+	const response = await axios.get(BASE_URL + "/geopoints/list/fixes");
+	for (const waypoint of response.data) {
+		result.push(processCoordinates(waypoint));
+	}
+	return result;
+};
+
+const getAllAirports = async (req, res) => {
+	let result = [];
+	const response = await axios.get(BASE_URL + "/geopoints/list/airports");
+	for (const airport of response.data) {
+		result.push(processCoordinates(airport));
+	}
+	return result;
 };
 
 //"WSSL (1.42,103.87)" => {name: "WSSL", latitude: 1.42, longitude: 103.87}
-const processWaypoint = (waypoint) => {
-  let result = {};
-  const [name, latitude, longitude] = waypoint
-    .replace("(", "")
-    .replace(")", "")
-    .replace(",", " ")
-    .split(" ");
-  result["name"] = name;
-  result["latitude"] = parseFloat(latitude);
-  result["longitude"] = parseFloat(longitude);
-  return result;
+const processCoordinates = (waypoint) => {
+	let result = {};
+	const [name, latitude, longitude] = waypoint
+		.replace("(", "")
+		.replace(")", "")
+		.replace(",", " ")
+		.split(" ");
+	result["name"] = name;
+	result["latitude"] = parseFloat(latitude);
+	result["longitude"] = parseFloat(longitude);
+	return result;
 };
 
 module.exports = {
-  getAllAirways,
-  getAllWaypoints,
-  processWaypoint,
+	getAllAirways,
+	getAllWaypoints,
+	getAllAirports,
+	processCoordinates,
 };
