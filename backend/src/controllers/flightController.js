@@ -9,22 +9,22 @@ const getAllFlights = async (req, res, next) => {
   }
 };
 
-const getFlightRouteByCallsign = async (req, res, next) => {
+const getFlightPathByCallsign = async (req, res, next) => {
   try {
     res
       .status(200)
-      .json(await flightService.getFlightByCallsign(req.params.callsign));
+      .json(await flightService.getFlightPathByCallsign(req.params.callsign));
   } catch (error) {
     console.error(error);
     next(error);
   }
 };
 
-const getFlightRouteById = async (req, res, next) => {
+const getFlightPathById = async (req, res, next) => {
   try {
     res
       .status(200)
-      .json(await flightService.getFlightRouteById(req.params.flightId));
+      .json(await flightService.getFlightPathById(req.params.flightId));
   } catch (error) {
     console.error(error);
     next(error);
@@ -33,6 +33,6 @@ const getFlightRouteById = async (req, res, next) => {
 
 module.exports = {
   getAllFlights,
-  getFlightRouteByCallsign,
-  getFlightRouteById,
+  getFlightPathByCallsign,
+  getFlightPathById,
 };

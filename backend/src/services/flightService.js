@@ -17,8 +17,8 @@ const getAllFlightPlans = async () => {
   return result;
 };
 
-//retrieve flight route with waypoint coordinates given callsign
-const getFlightByCallsign = async (callsign) => {
+//retrieve flight path with waypoint coordinates given callsign
+const getFlightPathByCallsign = async (callsign) => {
   const waypoints = await geoService.getAllWaypoints();
   const flightPlans = await axios.get(BASE_URL + "/flight-manager/displayAll");
   const flightPlan = flightPlans.data.find(
@@ -31,8 +31,8 @@ const getFlightByCallsign = async (callsign) => {
     return null; // Flight plan with the provided callsign not found
   }
 };
-//retrieve flight route with waypoint coordinates given flightPlan id
-const getFlightRouteById = async (flightId) => {
+//retrieve flight path with waypoint coordinates given flightPlan id
+const getFlightPathById = async (flightId) => {
   const waypoints = await geoService.getAllWaypoints();
   const response = await axios.get(BASE_URL + "/flight-manager/displayAll");
   const flightPlan = processFlightPlan(
@@ -49,7 +49,6 @@ const processFlightRoute = (flightPlan, waypoints) => {
   flightRoute["departure"] = flightPlan["departure"];
   flightRoute["arrival"] = flightPlan["arrival"];
   for (const routeElement of flightPlan["route"]["routeElement"]) {
-    console.log(routeElement);
     const waypoint = waypoints.find(
       (waypoint) => waypoint.name === routeElement.position.designatedPoint
     );
@@ -72,6 +71,6 @@ const processFlightPlan = (flightPlan) => {
 
 module.exports = {
   getAllFlightPlans,
-  getFlightByCallsign,
-  getFlightRouteById,
+  getFlightPathByCallsign,
+  getFlightPathById,
 };

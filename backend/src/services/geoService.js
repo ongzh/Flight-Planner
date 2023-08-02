@@ -2,6 +2,7 @@ const axios = require("axios");
 const { API_KEY, BASE_URL } = require("../utils/utils");
 axios.defaults.headers["apikey"] = API_KEY;
 
+//helper function to retrieve all airways and waypoints
 const getAllAirways = async (req, res) => {
   const response = await axios.get(BASE_URL + "/geopoints/list/airways");
   return response.data;
@@ -16,6 +17,7 @@ const getAllWaypoints = async (req, res) => {
   return result;
 };
 
+//"WSSL (1.42,103.87)" => {name: "WSSL", latitude: 1.42, longitude: 103.87}
 const processWaypoint = (waypoint) => {
   let result = {};
   const [name, latitude, longitude] = waypoint
