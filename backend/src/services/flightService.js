@@ -2,6 +2,7 @@ const axios = require("axios");
 const { API_KEY, BASE_URL } = require("../utils/utils");
 axios.defaults.headers["apikey"] = API_KEY;
 const geoService = require("./geoService");
+const haversine = require("haversine-distance");
 
 //retrieve all flight plans, convert to a more readable format
 const getAllFlightPlans = async () => {
@@ -17,23 +18,6 @@ const getAllFlightPlans = async () => {
 	return result;
 };
 
-//retrieve flight path with waypoint coordinates given callsign
-const getFlightPathByCallsign = async (callsign) => {
-	const waypoints = await geoService.getAllWaypoints();
-	const flightPlans = await axios.get(
-		BASE_URL + "/flight-manager/displayAll"
-	);
-	const flightPlan = flightPlans.data.find(
-		(plan) =>
-			plan.aircraftIdentification === callsign &&
-			plan.filedRoute !== undefined
-	);
-	if (flightPlan) {
-		return processflightPath(processFlightPlan(flightPlan), waypoints);
-	} else {
-		return null; // Flight plan with the provided callsign not found
-	}
-};
 //retrieve flight path with waypoint coordinates given flightPlan id
 const getFlightPathById = async (flightId) => {
 	const waypoints = await geoService.getAllWaypoints();
@@ -49,6 +33,7 @@ const getFlightPathById = async (flightId) => {
 //add waypoint and airport coordinates to flight route
 const processflightPath = (flightPlan, waypoints, airports) => {
 	let flightPath = {};
+	//set departure and arrival coordinates
 	flightPath["aircraftId"] = flightPlan["aircraftId"];
 	flightPlan["departure"]["departureAerodrome"] = airports.find(
 		(airport) =>
@@ -60,17 +45,57 @@ const processflightPath = (flightPlan, waypoints, airports) => {
 	);
 	flightPath["departure"] = flightPlan["departure"];
 	flightPath["arrival"] = flightPlan["arrival"];
+
+	//set waypoint coordinates for each route element
+	prevCoord = [
+		flightPlan["departure"]["departureAerodrome"]["latitude"],
+		flightPlan["departure"]["departureAerodrome"]["longitude"],
+	];
+
 	for (const routeElement of flightPlan["route"]["routeElement"]) {
-		if (routeElement.position === undefined) {
+		if (!routeElement["position"]) {
 			continue;
 		}
-		const waypoint = waypoints.find(
+		const possibleWaypoints = waypoints.filter(
 			(waypoint) =>
 				waypoint.name === routeElement.position.designatedPoint
 		);
-		routeElement.position = waypoint;
+		if (possibleWaypoints.length === 0) {
+			continue;
+		} else if (possibleWaypoints.length === 1) {
+			routeElement.position = possibleWaypoints[0];
+			prevCoord = [
+				possibleWaypoints[0].latitude,
+				possibleWaypoints[0].longitude,
+			];
+		}
+		//if two waypoint have the same name, take the one with minimum distance from previous waypoint
+		else if (possibleWaypoints.length > 1) {
+			let minDistanceWaypoint = possibleWaypoints[0];
+			let minDistance = haversine(prevCoord, [
+				possibleWaypoints[0].latitude,
+				possibleWaypoints[0].longitude,
+			]);
+			//go through list of possible waypoints and find the one with minimum distance
+			for (let i = 1; i < possibleWaypoints.length; i++) {
+				const distance = haversine(prevCoord, [
+					possibleWaypoints[i].latitude,
+					possibleWaypoints[i].longitude,
+				]);
+				if (distance < minDistance) {
+					minDistanceWaypoint = possibleWaypoints[i];
+					minDistance = distance;
+				}
+			}
+			routeElement.position = minDistanceWaypoint;
+			prevCoord = [
+				minDistanceWaypoint.latitude,
+				minDistanceWaypoint.longitude,
+			];
+		}
 	}
 	flightPath["route"] = flightPlan["route"];
+
 	return flightPath;
 };
 
@@ -87,6 +112,5 @@ const processFlightPlan = (flightPlan) => {
 
 module.exports = {
 	getAllFlightPlans,
-	getFlightPathByCallsign,
 	getFlightPathById,
 };
