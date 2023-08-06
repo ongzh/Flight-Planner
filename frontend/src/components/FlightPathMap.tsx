@@ -7,29 +7,26 @@ import {
 	Marker,
 	Line,
 } from "react-simple-maps";
-import { MapCoordinate } from "../utils/schema";
+import { FlightPath, MapCoordinate } from "../utils/schema";
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
-const FlightPathMap = (selectedFlightPath: any) => {
-	const [displayedFlightPath, setDisplayedFlightPath] = useState<any>(null);
+const FlightPathMap: React.FC<{ selectedFlightPath: FlightPath }> = ({
+	selectedFlightPath,
+}) => {
+	const [displayedFlightPath, setDisplayedFlightPath] =
+		useState<FlightPath | null>(null);
 	const [mapCoordinates, setMapCoordinates] = useState<MapCoordinate[]>([]);
 
 	useEffect(() => {
-		if (selectedFlightPath.selectedFlightPath !== displayedFlightPath) {
-			setDisplayedFlightPath(selectedFlightPath.selectedFlightPath);
-			setMapCoordinates(
-				parseCoordinates(selectedFlightPath.selectedFlightPath)
-			);
+		if (selectedFlightPath !== displayedFlightPath) {
+			setDisplayedFlightPath(selectedFlightPath);
+			setMapCoordinates(parseCoordinates(selectedFlightPath));
 		}
 		console.log(mapCoordinates);
-	}, [
-		displayedFlightPath,
-		mapCoordinates,
-		selectedFlightPath.selectedFlightPath,
-	]);
+	}, [displayedFlightPath, mapCoordinates, selectedFlightPath]);
 
-	if (mapCoordinates.length === 0) {
+	if (mapCoordinates.length === 0 || selectedFlightPath === null) {
 		return <div></div>;
 	} else
 		return (
