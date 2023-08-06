@@ -5,7 +5,7 @@ on:
         branches: ["main"]
 
 jobs:
-    set_up:
+    build_test_backend:
         runs-on: ubuntu-latest
 
         steps:
@@ -17,11 +17,6 @@ jobs:
               with:
                   node-version: "14"
 
-    build_test_backend:
-        runs-on: ubuntu-latest
-        needs: set_up
-
-        steps:
             - name: Install backend dependencies
               working-directory: backend
               run: npm install
@@ -36,12 +31,22 @@ jobs:
 
     build_frontend:
         runs-on: ubuntu-latest
-        needs: set_up
 
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup nodejs
+              uses: actions/setup-node@v2
+              with:
+                  node-version: "14"
             - name: Install frontend dependencies
               working-directory: frontend
-              run: npm install
+              run: npm ci
+
+            - name: npm run build test
+              working-directory: frontend
+              run: npm run build
 
             - name: Build the frontend Docker image
               working-directory: frontend
