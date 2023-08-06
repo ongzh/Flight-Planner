@@ -1,4 +1,5 @@
 import { parse, format } from "date-fns";
+import { FlightPlanOption } from "./schema";
 
 export const parseFlightPlan = (flightPlan: any): FlightPlanOption => {
 	const flightDate = flightPlan.departure.dateOfFlight.toString();
@@ -27,7 +28,8 @@ export const parseFlightPlan = (flightPlan: any): FlightPlanOption => {
 	return { label: label, value: flightPlan._id };
 };
 
-export interface FlightPlanOption {
-	label: string;
-	value: string;
-}
+export const sleep = (delay = 0) => {
+	return new Promise((resolve) => {
+		setTimeout(resolve, delay);
+	});
+};

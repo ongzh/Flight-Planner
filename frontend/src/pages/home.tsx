@@ -3,12 +3,14 @@ import axios from "axios";
 import { Box, Autocomplete, TextField, CircularProgress } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SendIcon from "@mui/icons-material/Send";
-import { FlightPlanOption, parseFlightPlan } from "../utils/utils";
+import { parseFlightPlan, sleep } from "../utils/utils";
+import FlightPathMap from "../components/FlightPathMap";
+import { FlightPlanOption } from "../utils/schema";
 
 const Home: React.FC = () => {
-	const [flightPlans, setFlightPlans] = useState<any>([]);
+	const [flightPlans, setFlightPlans] = useState([]);
 	const [selectedFlightId, setSelectedFlightId] = useState<string>("");
-	const [displayedFlightPath, setDisplayedFlightPath] = useState<any>(null);
+	const [selectedFlightPath, setselectedFlightPath] = useState<any>(null);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -31,66 +33,77 @@ const Home: React.FC = () => {
 			const res = await axios.get(
 				`http://localhost:3001/flights/display/path/${id}`
 			);
-			setDisplayedFlightPath(res.data);
+			setselectedFlightPath(res.data);
 			console.log(res.data);
 			setLoading(false);
 		} catch (err) {
 			console.error(err);
 			alert("Error fetching flight path");
+			setLoading(false);
 		}
 	};
 
 	return (
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				flexDirection: "column",
-				height: "100vh",
-			}}
-		>
-			<Box sx={{ mt: "5rem" }}>
-				<DropDownBox
-					flightPlans={flightPlans}
-					setSelectedFlightId={setSelectedFlightId}
-				></DropDownBox>
-
-				<LoadingButton
-					onClick={() => {
-						setLoading(true);
-						fetchFlightRouteById(selectedFlightId);
+		<>
+			<Box
+				sx={{
+					display: "flex",
+					alignItems: "center",
+					flexDirection: "column",
+					height: "100vh",
+				}}
+			>
+				<Box
+					sx={{
+						mt: "5rem",
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "center",
 					}}
-					endIcon={<SendIcon />}
-					loading={loading}
-					loadingPosition="end"
-					variant="contained"
 				>
-					<span>Submit</span>
-				</LoadingButton>
-			</Box>
-			<Box sx={{ mt: "5rem" }}>
-				{displayedFlightPath && (
-					<div>{displayedFlightPath.route.routeText}</div>
-				)}
-			</Box>
-		</Box>
-	);
-};
+					<DropDownBox
+						flightPlans={flightPlans}
+						setSelectedFlightId={setSelectedFlightId}
+					></DropDownBox>
 
-const sleep = (delay = 0) => {
-	return new Promise((resolve) => {
-		setTimeout(resolve, delay);
-	});
+					<LoadingButton
+						sx={{ height: 50, width: 120, ml: 10 }}
+						onClick={() => {
+							if (selectedFlightId === "") {
+								alert("Please select a flight plan");
+								return;
+							}
+							setLoading(true);
+							fetchFlightRouteById(selectedFlightId);
+						}}
+						endIcon={<SendIcon />}
+						loading={loading}
+						loadingPosition="end"
+						variant="contained"
+					>
+						<span>Submit</span>
+					</LoadingButton>
+				</Box>
+
+				<Box sx={{ mt: "5rem" }}>
+					{selectedFlightPath && (
+						<div>{selectedFlightPath.route.routeText}</div>
+					)}
+				</Box>
+
+				<FlightPathMap selectedFlightPath={selectedFlightPath} />
+				<Box sx={{ mt: "5rem" }}></Box>
+			</Box>
+		</>
+	);
 };
 
 const DropDownBox: React.FC<{
 	flightPlans: any[];
 	setSelectedFlightId: (flightId: string) => void;
 }> = ({ flightPlans, setSelectedFlightId }) => {
-	const [open, setOpen] = React.useState(false);
-	const [options, setOptions] = React.useState<readonly FlightPlanOption[]>(
-		[]
-	);
+	const [open, setOpen] = useState(false);
+	const [options, setOptions] = useState<FlightPlanOption[]>([]);
 	const loading = open && options.length === 0;
 
 	useEffect(() => {
@@ -122,11 +135,10 @@ const DropDownBox: React.FC<{
 			onClose={() => {
 				setOpen(false);
 			}}
-			isOptionEqualToValue={(option, value) =>
-				option.label === value.label
-			}
 			onChange={(event, option) => {
-				setSelectedFlightId((option as FlightPlanOption).value);
+				option === null
+					? setSelectedFlightId("")
+					: setSelectedFlightId((option as FlightPlanOption).value);
 			}}
 			getOptionLabel={(option) => option.label}
 			options={options}
