@@ -28,15 +28,17 @@ const getAllAirports = async (req, res) => {
 
 //"WSSL (1.42,103.87)" => {name: "WSSL", latitude: 1.42, longitude: 103.87}
 const processCoordinates = (waypoint) => {
-	let result = {};
 	const [name, latitude, longitude] = waypoint
 		.replace("(", "")
 		.replace(")", "")
 		.replace(",", " ")
 		.split(" ");
-	result["name"] = name;
-	result["latitude"] = parseFloat(latitude);
-	result["longitude"] = parseFloat(longitude);
+
+	const result = {
+		name: name,
+		latitude: parseFloat(latitude),
+		longitude: parseFloat(longitude),
+	};
 	return result;
 };
 

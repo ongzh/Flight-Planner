@@ -101,12 +101,14 @@ const processflightPath = (flightPlan, waypoints, airports) => {
 
 //convert flightplan to a more readable format
 const processFlightPlan = (flightPlan) => {
-	let plan = {};
-	plan["_id"] = flightPlan["_id"];
-	plan["aircraftId"] = flightPlan["aircraftIdentification"];
-	plan["departure"] = flightPlan["departure"];
-	plan["arrival"] = flightPlan["arrival"];
-	plan["route"] = flightPlan["filedRoute"];
+	const plan = {
+		_id: flightPlan["_id"],
+		aircraftId: flightPlan["aircraftIdentification"],
+		departure: flightPlan["departure"],
+		arrival: flightPlan["arrival"],
+		route: flightPlan["filedRoute"],
+	};
+
 	return plan;
 };
 

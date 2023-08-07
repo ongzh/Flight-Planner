@@ -1,5 +1,3 @@
-import { DateTimePickerProps } from "@mui/lab";
-
 export interface FlightPlanOption {
 	label: string;
 	value: string;

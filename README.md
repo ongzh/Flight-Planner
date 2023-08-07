@@ -1,6 +1,6 @@
 # Flight-Plan-Project
 
-Process and display flight routes from flight plans
+Process flight plans obtained from an API and graphically display the coordinates of the flight path on an interactive map.
 
 ## Tech Stack
 

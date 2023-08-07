@@ -44,9 +44,9 @@ jobs:
               working-directory: frontend
               run: npm ci
 
-            - name: npm run build test
+            - name: Run frontend tests
               working-directory: frontend
-              run: npm run build
+              run: npm test -- --watchAll=false
 
             - name: Build the frontend Docker image
               working-directory: frontend
